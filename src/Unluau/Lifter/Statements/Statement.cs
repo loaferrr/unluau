@@ -14,6 +14,14 @@ namespace Unluau
             for (int i = 0; i < statements.Count; i++)
             {
                 var statement = statements[i];
+        
+                // Add null check for statement
+                if (statement == null)
+                {
+                    output.WriteLine("-- [Unluau: null statement]");
+                    continue;
+                }
+        
                 if (statement.Comment != null)
                     output.WriteLine("-- " + statement.Comment);
 

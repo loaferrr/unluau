@@ -125,15 +125,23 @@ namespace Unluau
 
                             if (options.PerferStringInterpolation)
                             {
-                                // If we perfer string interpolation set the expression as an interpolated string
-                                string format = (((LocalExpression)nameIndex!.Expression).Expression as StringLiteral)!.Value;
-                                expression = new InterpolatedStringLiteral(format, new List<Expression>());
+                                // Safely extract the format string
+                                var localExpr = nameIndex?.Expression as LocalExpression;
+                                var stringLiteral = localExpr?.Expression as StringLiteral;
+                                if (stringLiteral != null)
+                                {
+                                    string format = stringLiteral.Value;
+                                    expression = new InterpolatedStringLiteral(format, new List<Expression>());
+                                }
                             }
                             else
                             {
                                 // Otherwise add an expression group around the string literal
-                                nameIndex!.Expression = new ExpressionGroup(nameIndex!.Expression);
-                                expression = nameIndex;
+                                if (nameIndex != null)
+                                {
+                                    nameIndex.Expression = new ExpressionGroup(nameIndex.Expression);
+                                    expression = nameIndex;
+                                }
                             }
                         }
 
@@ -293,7 +301,13 @@ namespace Unluau
                     case OpCode.SETTABLEKS:
                     {
                         StringConstant target = (StringConstant)function.GetConstant(++pc);
-                        Expression table = registers.GetExpression(instruction.B), tableValue = ((LocalExpression)table).Expression;
+                        Expression table = registers.GetExpression(instruction.B);
+                        if (table == null || !(table is LocalExpression))
+                        {
+                            // Skip this instruction if table is null or not a LocalExpression
+                            break;
+                        }
+                        Expression tableValue = ((LocalExpression)table).Expression;
 
                         if (options.InlineTableDefintions && tableValue is TableLiteral)
                         {
@@ -317,7 +331,12 @@ namespace Unluau
                     case OpCode.SETTABLE:
                     {
                         Expression expression = registers.GetRefExpressionValue(instruction.C), value = registers.GetExpression(instruction.A);
-                        Expression table = registers.GetExpression(instruction.B, false), tableValue = ((LocalExpression)table).Expression;
+                        Expression table = registers.GetExpression(instruction.B, false);
+                        if (table == null || !(table is LocalExpression))
+                        {
+                            break;
+                        }
+                        Expression tableValue = ((LocalExpression)table).Expression;
 
                         if (options.InlineTableDefintions && tableValue is TableLiteral)
                         {
@@ -682,7 +701,11 @@ namespace Unluau
 
         private int IsSelf(Expression expression)
         {
-            Expression? value = expression.GetValue();
+            Expression? value = expression?.GetValue();
+    
+            // Add null check here
+            if (value == null)
+                return 0;
 
             if (value is NameIndex nameIndex)
                 return nameIndex.IsSelf ? 1 : 0;
