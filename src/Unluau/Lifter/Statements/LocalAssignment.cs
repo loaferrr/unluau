@@ -52,6 +52,13 @@ namespace Unluau
 
         public override void Write(Output output)
         {
+            // Add null checks
+            if (Expression == null || Value == null)
+            {
+                output.Write("-- [Unluau: Failed to decompile local assignment]");
+                return;
+            }
+    
             output.Write("local ");
 
             if (Value is Closure)

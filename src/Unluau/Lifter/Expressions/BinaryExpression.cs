@@ -39,6 +39,13 @@ namespace Unluau
 
         public override void Write(Output output)
         {
+            // Add null checks
+            if (Left == null || Right == null)
+            {
+                output.Write("nil");
+                return;
+            }
+    
             Left.Write(output);
             output.Write($" {BinaryOperationChar(Operation)} ");
             Right.Write(output);
