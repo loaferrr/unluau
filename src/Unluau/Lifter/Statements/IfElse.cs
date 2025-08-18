@@ -24,6 +24,13 @@ namespace Unluau
 
         public override void Write(Output output)
         {
+            // Add null checks for Condition and IfBody
+            if (Condition == null || IfBody == null)
+            {
+                output.WriteLine("-- [Unluau: Failed to decompile if statement - missing condition or body]");
+                return;
+            }
+    
             output.Write("if ");
             Condition.Write(output);
             output.WriteLine(" then");

@@ -22,21 +22,25 @@ namespace Unluau
 
         public override void Write(Output output)
         {
-            output.Write("return ");
-
-            bool first = true;
-
-            foreach (Expression expression in Expressions)
+            output.Write("return");
+    
+            if (Expressions != null && Expressions.Count > 0)
             {
-                if (expression is null)
-                    continue;
-
-                expression.Write(output);
-
-                if (first)
+                output.Write(" ");
+                bool first = true;
+        
+                foreach (Expression expression in Expressions)
+                {
+                    if (!first)
+                        output.Write(", ");
+            
+                    if (expression == null)
+                        output.Write("nil");
+                    else
+                        expression.Write(output);
+            
                     first = false;
-                else
-                    output.Write(",");
+                }
             }
         }
     }

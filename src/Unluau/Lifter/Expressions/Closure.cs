@@ -44,7 +44,11 @@ namespace Unluau
 
             output.WriteLine(")");
 
-            Block.Write(output);
+            // Add null check for Block
+            if (Block != null)
+                Block.Write(output);
+            else
+                output.WriteLine("-- [Unluau: Missing function body]");
 
             output.Write("end");
         }
